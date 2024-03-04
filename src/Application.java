@@ -3,6 +3,7 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferStrategy;
 import javax.swing.*;
 import java.awt.event.*;
+import java.io.*;
 
 public class Application extends JFrame implements Runnable, MouseListener {
     // member data
@@ -130,6 +131,7 @@ public class Application extends JFrame implements Runnable, MouseListener {
         // while the game is not started then we allow the user to draw the stating position or hit the random button
         if (!isGameStarted) {
             // checking if the start button has been pressed
+            String saveFile = "C:\\Java_Projects\\Assignment8_NextGenTech_SaveLoad\\src\\saveState.txt";
             if (mouseClick.x > 15 && mouseClick.x < 72 && mouseClick.y > 40 && mouseClick.y < 60) {
                 checkNeighbours();
                 isGameStarted = true;
@@ -137,6 +139,49 @@ public class Application extends JFrame implements Runnable, MouseListener {
             // checking if the Random button was pressed
             else if (mouseClick.x > 87 && mouseClick.x < 174 && mouseClick.y > 40 && mouseClick.y < 60) {
                 randomStart();
+            }else if (mouseClick.x > 275 && mouseClick.x < 332 && mouseClick.y > 40 && mouseClick.y < 60) {
+                StringBuilder line = new StringBuilder();
+                try {
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(saveFile));
+                    try {
+                        for (int j = 0; j < 40; j++) {
+                            for (int i = 0; i < 40; i++) {
+                                if (gameStateArray[i][j][1]) {
+                                    line.append("x");
+                                } else {
+                                    line.append("o");
+                                }
+                            }
+                            writer.write(line.toString());
+                            writer.newLine();
+                            line = new StringBuilder();
+                        }
+                        writer.close();
+
+                    } catch (IOException e1) {
+                    }
+                } catch (IOException exception) {
+                }
+
+            }else if (mouseClick.x > 345 && mouseClick.x < 402 && mouseClick.y > 40 && mouseClick.y < 60) {
+                System.out.println("Load has been clicked");
+                String currLine;
+                try{
+                    BufferedReader reader = new BufferedReader(new FileReader(saveFile));
+                        try{
+                            for (int i = 0; i < 40; i++) {
+                                currLine = reader.readLine();
+                                for(int j =0; j < 40; j++) {
+                                    if (currLine.charAt(j) == 'x') {
+                                        gameStateArray[j][i][1] = true;
+                                        this.repaint();
+                                    }
+                                }
+                            }
+                        } catch(IOException e1){}
+                    reader.close();
+                } catch(IOException exception){}
+
             } else {
                 // toggle the state of the square at the corresponding index of the game state array
                 gameStateArray[(int) mouseClick.x / 20][(int) mouseClick.y / 20][1] = !gameStateArray[(int) mouseClick.x / 20][(int) mouseClick.y / 20][1];
@@ -180,12 +225,20 @@ public class Application extends JFrame implements Runnable, MouseListener {
         // while the game is not started then we draw the buttons for the user
         if (!isGameStarted) {
             g.setColor(Color.GREEN);
+            // Start button
             g.fillRect(15, 40, 57, 20);
+            // random button
             g.fillRect(87, 40, 87, 20);
+            // save button
+            g.fillRect(275, 40, 57, 20);
+            // load button
+            g.fillRect(347, 40, 57, 20);
             g.setColor(Color.BLACK);
             g.setFont(new Font("TimesRoman", Font.BOLD, 20));
             g.drawString("Start", 20, 57);
             g.drawString("Random", 92, 57);
+            g.drawString("Save", 280, 57);
+            g.drawString("Load", 352, 57);
         }
 
         // flip the buffers off-screen<-->on-screen
