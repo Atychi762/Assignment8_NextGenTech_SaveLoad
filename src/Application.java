@@ -1,11 +1,12 @@
 import java.awt.*;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferStrategy;
 import javax.swing.*;
 import java.awt.event.*;
 import java.io.*;
 
-public class Application extends JFrame implements Runnable, MouseListener {
+public class Application extends JFrame implements Runnable, MouseListener, MouseMotionListener {
     // member data
     private static final Dimension WindowSize = new Dimension(800, 800);
     private final BufferStrategy strategy;
@@ -18,6 +19,7 @@ public class Application extends JFrame implements Runnable, MouseListener {
     public Application() {
         // adding the mouse listener
         this.addMouseListener(this);
+        this.addMouseMotionListener(this);
         // initialise the elements of game state array to false
         for (int i = 0; i < 40; i++) {
             for (int j = 0; j < 40; j++) {
@@ -122,6 +124,22 @@ public class Application extends JFrame implements Runnable, MouseListener {
         }
     }
 
+
+    // mouse events which must be implemented for MouseMotionListener
+    public void mouseMoved(MouseEvent e){
+
+    }
+    public void mouseDragged(MouseEvent e){
+        Point mouseClick = e.getPoint();
+        // checking if the point is currently at the border of the cell
+        if(mouseClick.x % 20 == 0 || mouseClick.y % 20 == 0){
+            // if it is then toggle the cell state
+            gameStateArray[(int) mouseClick.x / 20][(int) mouseClick.y / 20][1] = !gameStateArray[(int) mouseClick.x / 20][(int) mouseClick.y / 20][1];
+            // repainting to update the cells faster to improve the user feel
+            this.repaint();
+        }
+    }
+
     // mouse events which must be implemented for MouseListener
     @Override
     public void mousePressed(MouseEvent e) {
@@ -139,46 +157,58 @@ public class Application extends JFrame implements Runnable, MouseListener {
             // checking if the Random button was pressed
             else if (mouseClick.x > 87 && mouseClick.x < 174 && mouseClick.y > 40 && mouseClick.y < 60) {
                 randomStart();
+            // Checking if the Save button was pressed
             }else if (mouseClick.x > 275 && mouseClick.x < 332 && mouseClick.y > 40 && mouseClick.y < 60) {
+                // crating a new string builder to create the string that is written to the save file
                 StringBuilder line = new StringBuilder();
                 try {
+                    // crating a new buffered writer
                     BufferedWriter writer = new BufferedWriter(new FileWriter(saveFile));
                     try {
+                        // Looping through the game state array and adding an X if the cell is true and O if the cell is false
                         for (int j = 0; j < 40; j++) {
                             for (int i = 0; i < 40; i++) {
                                 if (gameStateArray[i][j][1]) {
-                                    line.append("x");
+                                    line.append("X");
                                 } else {
-                                    line.append("o");
+                                    line.append("O");
                                 }
                             }
+                            // writing the built string to the save file and adding a new line
                             writer.write(line.toString());
                             writer.newLine();
+                            // emptying the stringbuilder
                             line = new StringBuilder();
                         }
+                        // closing the writer
                         writer.close();
+                    } catch (IOException e1) {}
+                } catch (IOException exception) {}
 
-                    } catch (IOException e1) {
-                    }
-                } catch (IOException exception) {
-                }
-
+            // checking if the load button was pressed
             }else if (mouseClick.x > 345 && mouseClick.x < 402 && mouseClick.y > 40 && mouseClick.y < 60) {
-                System.out.println("Load has been clicked");
+                // creating a line variable for the current line that has been read in
                 String currLine;
                 try{
+                    // crating a new buffered reader
                     BufferedReader reader = new BufferedReader(new FileReader(saveFile));
                         try{
+                            // looping through the save file
                             for (int i = 0; i < 40; i++) {
+                                // reading the current line
                                 currLine = reader.readLine();
+                                // looping through the characters in the line
                                 for(int j =0; j < 40; j++) {
-                                    if (currLine.charAt(j) == 'x') {
+                                    // if the current character is an X then set the corresponding cell to true
+                                    if (currLine.charAt(j) == 'X') {
                                         gameStateArray[j][i][1] = true;
-                                        this.repaint();
                                     }
                                 }
                             }
+                            // repainting to ensure that the array is displayed
+                            this.repaint();
                         } catch(IOException e1){}
+                    // closing the reader
                     reader.close();
                 } catch(IOException exception){}
 
