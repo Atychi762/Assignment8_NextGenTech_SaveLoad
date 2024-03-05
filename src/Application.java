@@ -134,7 +134,7 @@ public class Application extends JFrame implements Runnable, MouseListener, Mous
         // checking if the game is started
         if(!isGameStarted) {
             // checking if the point is currently at the border of the cell
-            if (mouseClick.x % 20 == 0 || mouseClick.y % 20 == 0) {
+            if (mouseClick.x % 20 == 0 || mouseClick.y % 20 == 19) {
                 // if it is then toggle the cell state
                 gameStateArray[(int) mouseClick.x / 20][(int) mouseClick.y / 20][1] = !gameStateArray[(int) mouseClick.x / 20][(int) mouseClick.y / 20][1];
                 // repainting to update the cells faster to improve the user feel
